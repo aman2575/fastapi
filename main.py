@@ -15,13 +15,6 @@ async def post():
 async def put():
     return {"message": "Hello from PUT route"}
 
-@app.get("/items")
-async def list_items():
-    return {"message": "List items routes"}
-
-@app.get("/items/{item_id}")
-async def get_items(item_id: int):
-    return {"item_id": item_id}
 
 @app.get("/users/me")
 async def get_current_user():
@@ -44,3 +37,43 @@ async def get_food(food_name: FoodEnum):
     if food_name == FoodEnum.fruits:
         return {"food_name": food_name, "message": "you are still healthy, but like sweet things"}
     return {"food_name": food_name, "message": "i like chocolate milk"}
+
+
+fake_items_db = [{"item_name": "Foo"}, {"item_name": "Bar"}, {"item_name": "Jaz"}]
+
+# Query Parameters
+@app.get("/items")
+async def list_items(skip: int = 0, limit: int = 10):
+    return fake_items_db[skip : skip + limit]
+
+# Optional Query Parameters 
+
+@app.get("/items/{item_id}")
+async def get_item(item_id: str,sample_query_param: str, q: str | None = None, short: bool = False):
+    item = {"item_id": item_id, "sample_query_param": sample_query_param}
+    if q:
+        item.update({"q": q})
+    if not short:
+        item.update(
+            {
+                "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc congue."
+            }
+        )
+    
+    return item
+
+@app.get("/users/{user_id}/items/{item_id}")
+async def get_user_item(
+    user_id: int, item_id: str, q: str | None = None, short: bool = False
+):
+    item = {"item_id": item_id, "owner_id": user_id}
+    if q:
+        item.update({"q": q})
+    if not short:
+        item.update(
+            {
+                "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc congue."
+            }
+        )
+    
+    return item
